@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CareAssist — A smart elderly care companion app with medicine reminders, health tracking, emergency SOS and AI assistance."/>
+  <title>CareAssist — Elderly Care Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== LOADING SCREEN ===== -->
+  <div id="loading-screen" class="loading-screen">
+    <!-- Ambient orbs -->
+    <div class="ls-orb ls-orb-1"></div>
+    <div class="ls-orb ls-orb-2"></div>
+    <div class="ls-orb ls-orb-3"></div>
+    <!-- Rising particles (spawned by JS) -->
+    <div class="ls-particles" id="ls-particles"></div>
+
+    <div class="ls-content">
+      <div class="ls-logo">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402C1 3.784 3.784 2 6.5 2c1.97 0 3.623 1.002 4.5 2.05C11.877 3.002 13.53 2 15.5 2 18.216 2 21 3.784 21 7.191c0 4.105-5.37 8.863-9 12.602l-1 1.8z" fill="white" opacity="0.95"/>
+          <path d="M7 11h3l2-4 2 8 2-4h3" stroke="rgba(255,255,255,0.55)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ls-name">CareAssist</div>
+      <div class="ls-tagline">Elderly Care Assistant</div>
+      <div class="ls-bar-wrap"><div class="ls-bar"></div></div>
+      <div class="ls-status" id="ls-status">Starting up…</div>
+    </div>
+
+    <div class="ls-footer">
+      <div class="ls-hackathon-badge">
+        <i class="fa-solid fa-trophy"></i>
+        Built for <strong>AppXcelerate 1.0</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LOGIN PAGE ===== -->
+  <div id="page-login" class="login-screen active">
+    <div class="login-bg-shapes">
+      <div class="lbs lbs1"></div>
+      <div class="lbs lbs2"></div>
+      <div class="lbs lbs3"></div>
+    </div>
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402C1 3.784 3.784 2 6.5 2c1.97 0 3.623 1.002 4.5 2.05C11.877 3.002 13.53 2 15.5 2 18.216 2 21 3.784 21 7.191c0 4.105-5.37 8.863-9 12.602l-1 1.8z" fill="white" opacity="0.9"/>
+            <path d="M7 11h3l2-4 2 8 2-4h3" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="login-logo-text">
+          <span class="llt-name">CareAssist</span>
+          <span class="llt-tag">Elderly Care Assistant</span>
+        </div>
+      </div>
+
+      <div class="login-welcome">
+        <h2>Welcome Back</h2>
+        <p>Please sign in to continue</p>
+      </div>
+
+      <div class="login-form">
+        <div class="login-input-group">
+          <label for="login-user"><i class="fa-solid fa-user"></i> Username</label>
+          <div class="login-input-wrap">
+            <input type="text" id="login-user" placeholder="Enter your username" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="login-input-group">
+          <label for="login-pass"><i class="fa-solid fa-lock"></i> Password</label>
+          <div class="login-input-wrap">
+            <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password" />
+            <button class="toggle-pass" onclick="togglePassword()" title="Show/hide password">
+              <i class="fa-solid fa-eye" id="pass-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="login-error" class="login-error hidden">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="login-error-msg">Invalid username or password.</span>
+        </div>
+
+        <button class="login-btn" onclick="handleLogin()">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+      </div>
+
+      <div class="login-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        Default: <strong>admin</strong> / <strong>1234</strong>
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <i class="fa-solid fa-heart"></i> Made with care for <strong>AppXcelerate 1.0</strong>
+    </div>
+  </div>
+
+  <!-- ===== GLOBAL NAVBAR ===== -->
+  <nav class="navbar hidden" id="main-navbar">
+    <div class="nav-inner">
+      <div class="nav-brand" onclick="showPage('home')" style="cursor:pointer;">
+        <div class="nav-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402C1 3.784 3.784 2 6.5 2c1.97 0 3.623 1.002 4.5 2.05C11.877 3.002 13.53 2 15.5 2 18.216 2 21 3.784 21 7.191c0 4.105-5.37 8.863-9 12.602l-1 1.8z" fill="white" opacity="0.95"/>
+            <path d="M7 11h3l2-4 2 8 2-4h3" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="nav-name">CareAssist</div>
+          <div class="nav-tagline">Elderly Care</div>
+        </div>
+      </div>
+      <div class="nav-right">
+        <div class="nav-clock" id="nav-clock"></div>
+        <button class="nav-icon-btn" onclick="showPage('help')" title="Help">
+          <i class="fa-solid fa-circle-question"></i>
+        </button>
+        <button class="nav-icon-btn" onclick="showPage('about')" title="About">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <button class="nav-logout" onclick="handleLogout()" title="Sign out">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HOME PAGE ===== -->
+  <div id="page-home" class="page">
+
+    <div class="home-hero">
+      <div class="hero-greeting">
+        <div class="hero-badge"><i class="fa-solid fa-shield-heart"></i>&nbsp; Your Health, Our Priority</div>
+        <h1 class="hero-title">Hello, <span id="greeting-time">Good Day!</span></h1>
+        <p class="hero-sub" id="hero-date"></p>
+      </div>
+      <div class="hero-illustration"><i class="fa-solid fa-user-nurse"></i></div>
+    </div>
+
+    <div class="home-content">
+      <p class="section-label">What do you need today?</p>
+
+      <div class="home-grid">
+        <button class="home-card c-blue" onclick="showPage('medicine')">
+          <div class="hc-top">
+            <div class="hc-icon"><i class="fa-solid fa-pills"></i></div>
+            <i class="fa-solid fa-chevron-right hc-arr"></i>
+          </div>
+          <div class="hc-title">Medicine<br>Reminder</div>
+          <div class="hc-sub">Set &amp; track doses</div>
+        </button>
+
+        <button class="home-card c-red" onclick="showPage('emergency')">
+          <div class="hc-top">
+            <div class="hc-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <i class="fa-solid fa-chevron-right hc-arr"></i>
+          </div>
+          <div class="hc-title">Emergency<br>Help</div>
+          <div class="hc-sub">One-tap SOS</div>
+        </button>
+
+        <button class="home-card c-green" onclick="showPage('health')">
+          <div class="hc-top">
+            <div class="hc-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+            <i class="fa-solid fa-chevron-right hc-arr"></i>
+          </div>
+          <div class="hc-title">Health<br>Tracker</div>
+          <div class="hc-sub">BP · Sugar · Heart</div>
+        </button>
+
+        <button class="home-card c-teal" onclick="showPage('family')">
+          <div class="hc-top">
+            <div class="hc-icon"><i class="fa-solid fa-phone-volume"></i></div>
+            <i class="fa-solid fa-chevron-right hc-arr"></i>
+          </div>
+          <div class="hc-title">Call<br>Family</div>
+          <div class="hc-sub">Son · Daughter · Doctor</div>
+        </button>
+      </div>
+
+      <p class="section-label" style="margin-top:28px;">Assistants</p>
+      <button class="voice-banner" onclick="showPage('voice')">
+        <div class="vb-left">
+          <div class="vb-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+          <div>
+            <div class="vb-name">Voice Assistant</div>
+            <div class="vb-hint">Speak your command hands-free</div>
+          </div>
+        </div>
+        <div class="vb-go"><i class="fa-solid fa-arrow-right"></i></div>
+      </button>
+
+      <button class="voice-banner ai-banner" onclick="showPage('ai')" style="margin-top:14px;">
+        <div class="vb-left">
+          <div class="vb-icon ai-vb-icon"><i class="fa-solid fa-robot"></i></div>
+          <div>
+            <div class="vb-name">AI Assistant</div>
+            <div class="vb-hint">Chat &bull; Ask health questions &bull; Get help</div>
+          </div>
+        </div>
+        <div class="vb-go"><i class="fa-solid fa-arrow-right"></i></div>
+      </button>
+    </div>
+
+    <footer class="site-footer">
+      <div class="sf-inner">
+        <i class="fa-solid fa-heart sf-heart"></i>
+        <span>Made with care for <strong>AppXcelerate 1.0</strong></span>
+      </div>
+      <div class="sf-links">
+        <button onclick="showPage('about')"><i class="fa-solid fa-circle-info"></i> About</button>
+        <span class="sf-dot">·</span>
+        <button onclick="showPage('help')"><i class="fa-solid fa-circle-question"></i> Help</button>
+        <span class="sf-dot">·</span>
+        <span>v1.0.0</span>
+      </div>
+    </footer>
+  </div>
+
+
+  <div id="page-medicine" class="page">
+    <div class="page-hero ph-blue">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap"><i class="fa-solid fa-pills"></i></div>
+        <div>
+          <h2>Medicine Reminder</h2>
+          <p>Never miss a dose again</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary stats bar -->
+    <div class="med-stats-bar">
+      <div class="med-stat">
+        <span class="ms-num" id="stat-total">0</span>
+        <span class="ms-label">Total</span>
+      </div>
+      <div class="ms-divider"></div>
+      <div class="med-stat">
+        <span class="ms-num ms-due" id="stat-due">0</span>
+        <span class="ms-label">Due Soon</span>
+      </div>
+      <div class="ms-divider"></div>
+      <div class="med-stat">
+        <span class="ms-num ms-taken" id="stat-taken">0</span>
+        <span class="ms-label">Taken Today</span>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Add form card -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-circle-plus"></i> Add New Reminder</div>
+
+        <div class="input-group">
+          <label><i class="fa-solid fa-capsules"></i> Medicine Name</label>
+          <input type="text" id="med-name" placeholder="e.g. Aspirin 100mg" />
+        </div>
+
+        <div class="med-row">
+          <div class="input-group flex1">
+            <label><i class="fa-solid fa-clock"></i> Time</label>
+            <input type="time" id="med-time" />
+          </div>
+          <div class="input-group flex1">
+            <label><i class="fa-solid fa-repeat"></i> Frequency</label>
+            <select id="med-freq" class="med-select">
+              <option value="Once daily">Once daily</option>
+              <option value="Twice daily">Twice daily</option>
+              <option value="Three times daily">Three times daily</option>
+              <option value="Before meals">Before meals</option>
+              <option value="After meals">After meals</option>
+              <option value="At bedtime">At bedtime</option>
+              <option value="As needed">As needed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fa-solid fa-note-sticky"></i> Notes <span class="opt-tag">optional</span></label>
+          <input type="text" id="med-notes" placeholder="e.g. Take with water, avoid milk" maxlength="80" />
+        </div>
+
+        <button class="action-btn btn-blue" onclick="addReminder()">
+          <i class="fa-solid fa-plus"></i> Add Reminder
+        </button>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="med-filter-bar">
+        <button class="mf-btn active" onclick="filterReminders('all', this)">All</button>
+        <button class="mf-btn" onclick="filterReminders('pending', this)">Pending</button>
+        <button class="mf-btn" onclick="filterReminders('taken', this)">Taken</button>
+        <button class="mf-btn" onclick="filterReminders('due', this)">Due Soon</button>
+      </div>
+
+      <!-- Reminder list card -->
+      <div class="card">
+        <div class="card-head">
+          <span><i class="fa-solid fa-list-check"></i> My Reminders</span>
+          <span class="rem-count-badge" id="rem-count">0</span>
+        </div>
+        <div id="reminder-list" class="record-list">
+          <div class="empty-state"><i class="fa-solid fa-bell-slash"></i><p>No reminders yet.<br>Add one above!</p></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+
+  <!-- ===== EDIT REMINDER MODAL ===== -->
+  <div id="edit-modal" class="modal-overlay hidden" onclick="closeEditModal(event)">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span><i class="fa-solid fa-pen-to-square"></i> Edit Reminder</span>
+        <button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <input type="hidden" id="edit-id" />
+      <div class="input-group">
+        <label><i class="fa-solid fa-capsules"></i> Medicine Name</label>
+        <input type="text" id="edit-name" placeholder="Medicine name" />
+      </div>
+      <div class="med-row">
+        <div class="input-group flex1">
+          <label><i class="fa-solid fa-clock"></i> Time</label>
+          <input type="time" id="edit-time" />
+        </div>
+        <div class="input-group flex1">
+          <label><i class="fa-solid fa-repeat"></i> Frequency</label>
+          <select id="edit-freq" class="med-select">
+            <option value="Once daily">Once daily</option>
+            <option value="Twice daily">Twice daily</option>
+            <option value="Three times daily">Three times daily</option>
+            <option value="Before meals">Before meals</option>
+            <option value="After meals">After meals</option>
+            <option value="At bedtime">At bedtime</option>
+            <option value="As needed">As needed</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label><i class="fa-solid fa-note-sticky"></i> Notes</label>
+        <input type="text" id="edit-notes" placeholder="Optional notes" maxlength="80" />
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" onclick="closeEditModal()">Cancel</button>
+        <button class="action-btn btn-blue modal-save-btn" onclick="saveEdit()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EMERGENCY HELP ===== -->
+  <div id="page-emergency" class="page">
+    <div class="page-hero ph-red">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap pulse-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div>
+          <h2>Emergency Help</h2>
+          <p>Immediate assistance available</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body center-body">
+
+      <!-- Contact setup card -->
+      <div class="card ec-setup-card">
+        <div class="card-head"><i class="fa-solid fa-address-book"></i> Emergency Contact</div>
+
+        <div class="ec-contact-display" id="ec-display">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="ec-form" id="ec-form">
+          <div class="input-group">
+            <label><i class="fa-solid fa-user"></i> Contact Name</label>
+            <input type="text" id="ec-name" placeholder="e.g. John (Son)" maxlength="40" />
+          </div>
+          <div class="input-group">
+            <label><i class="fa-solid fa-phone"></i> Phone Number</label>
+            <input type="tel" id="ec-phone" placeholder="e.g. +91 98765 43210" maxlength="20" inputmode="tel" />
+          </div>
+          <button class="action-btn btn-red" onclick="saveEmergencyContact()">
+            <i class="fa-solid fa-floppy-disk"></i> Save Contact
+          </button>
+        </div>
+      </div>
+
+      <!-- SOS section -->
+      <p class="page-desc" style="margin-top:8px;">Press the button below if you need <strong>immediate help</strong></p>
+
+      <div class="sos-outer">
+        <div class="sos-ring-anim"></div>
+        <button class="sos-btn" onclick="triggerSOS()">
+          <i class="fa-solid fa-bell-concierge"></i>
+          <span>SOS</span>
+          <small>Press for Help</small>
+        </button>
+      </div>
+
+      <!-- SOS status — shown after button press -->
+      <div id="sos-alert" class="sos-calling-card hidden">
+        <div class="scc-top">
+          <div class="scc-anim-ring"></div>
+          <div class="scc-phone-icon"><i class="fa-solid fa-phone-volume"></i></div>
+        </div>
+        <div class="scc-status" id="scc-status-text">Calling emergency contact…</div>
+        <div class="scc-name"  id="scc-contact-name"></div>
+        <div class="scc-number" id="scc-contact-number"></div>
+        <div class="scc-connected hidden" id="scc-connected">
+          <i class="fa-solid fa-circle-check"></i> Call Connected — Help is on the way!
+        </div>
+        <button class="scc-cancel-btn" id="scc-cancel-btn" onclick="cancelSOS()">
+          <i class="fa-solid fa-phone-slash"></i> Cancel
+        </button>
+      </div>
+
+      <!-- Static emergency numbers -->
+      <div class="info-card" style="width:100%;max-width:420px;">
+        <div class="info-title"><i class="fa-solid fa-phone-square-alt"></i> National Emergency Numbers</div>
+        <div class="info-row"><i class="fa-solid fa-phone" style="color:#2563eb"></i><span>Emergency</span><strong>112</strong></div>
+        <div class="info-row"><i class="fa-solid fa-truck-medical" style="color:#dc2626"></i><span>Ambulance</span><strong>108</strong></div>
+        <div class="info-row"><i class="fa-solid fa-shield-halved" style="color:#7c3aed"></i><span>Police</span><strong>100</strong></div>
+      </div>
+
+    </div>
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+
+  <!-- ===== HEALTH TRACKER ===== -->
+  <div id="page-health" class="page">
+    <div class="page-hero ph-green">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div>
+          <h2>Health Tracker</h2>
+          <p>Monitor your daily vitals</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest reading summary bar -->
+    <div class="ht-summary-bar" id="ht-summary-bar">
+      <div class="ht-sum-item">
+        <div class="ht-sum-icon hsi-red"><i class="fa-solid fa-droplet"></i></div>
+        <div><div class="ht-sum-val" id="sum-bp">—</div><div class="ht-sum-lbl">Blood Pressure</div></div>
+      </div>
+      <div class="ht-sum-divider"></div>
+      <div class="ht-sum-item">
+        <div class="ht-sum-icon hsi-amber"><i class="fa-solid fa-vial"></i></div>
+        <div><div class="ht-sum-val" id="sum-sugar">—</div><div class="ht-sum-lbl">Blood Sugar</div></div>
+      </div>
+      <div class="ht-sum-divider"></div>
+      <div class="ht-sum-item">
+        <div class="ht-sum-icon hsi-pink"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div><div class="ht-sum-val" id="sum-hr">—</div><div class="ht-sum-lbl">Heart Rate</div></div>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Input card -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-stethoscope"></i> Log Today's Readings</div>
+        <div class="vital-row">
+          <div class="vital-badge vb-red"><i class="fa-solid fa-droplet"></i></div>
+          <div class="input-group flex1">
+            <label>Blood Pressure <span class="unit-tag">mmHg</span></label>
+            <input type="text" id="bp" placeholder="e.g. 120/80" />
+          </div>
+        </div>
+        <div class="vital-row">
+          <div class="vital-badge vb-amber"><i class="fa-solid fa-vial"></i></div>
+          <div class="input-group flex1">
+            <label>Blood Sugar <span class="unit-tag">mg/dL</span></label>
+            <input type="number" id="sugar" placeholder="e.g. 110" min="0" max="600" />
+          </div>
+        </div>
+        <div class="vital-row">
+          <div class="vital-badge vb-pink"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div class="input-group flex1">
+            <label>Heart Rate <span class="unit-tag">bpm</span></label>
+            <input type="number" id="heartrate" placeholder="e.g. 72" min="0" max="300" />
+          </div>
+        </div>
+        <button class="action-btn btn-green" onclick="saveHealth()">
+          <i class="fa-solid fa-floppy-disk"></i> Save Record
+        </button>
+      </div>
+
+      <!-- Chart card -->
+      <div class="card ht-chart-card" id="ht-chart-card">
+        <div class="card-head">
+          <span><i class="fa-solid fa-chart-line"></i> Trends</span>
+          <div class="ht-chart-tabs">
+            <button class="ht-tab active" onclick="switchChart('sugar', this)">Sugar</button>
+            <button class="ht-tab" onclick="switchChart('hr', this)">Heart Rate</button>
+          </div>
+        </div>
+        <div class="ht-chart-wrap">
+          <canvas id="health-chart"></canvas>
+        </div>
+        <div class="ht-normal-ranges">
+          <div class="hnr-item" id="hnr-sugar">
+            <i class="fa-solid fa-circle-info"></i>
+            Normal Blood Sugar: <strong>70–140 mg/dL</strong>
+          </div>
+          <div class="hnr-item hidden" id="hnr-hr">
+            <i class="fa-solid fa-circle-info"></i>
+            Normal Heart Rate: <strong>60–100 bpm</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- History card -->
+      <div class="card">
+        <div class="card-head">
+          <span><i class="fa-solid fa-clock-rotate-left"></i> History</span>
+          <span class="rem-count-badge" id="health-count">0</span>
+        </div>
+        <div id="health-list" class="record-list">
+          <div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>No records yet.<br>Save your first reading!</p></div>
+        </div>
+      </div>
+
+    </div>
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+
+  <!-- ===== CALL FAMILY ===== -->
+  <div id="page-family" class="page">
+    <div class="page-hero ph-teal">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap"><i class="fa-solid fa-phone-volume"></i></div>
+        <div>
+          <h2>Call Family</h2>
+          <p>Reach your loved ones instantly</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body center-body">
+      <p class="page-desc">Tap a card to connect with your family</p>
+
+      <div class="call-list">
+        <button class="call-card" onclick="makeCall('Son')">
+          <div class="cc-avatar ca-blue"><i class="fa-solid fa-person"></i></div>
+          <div class="cc-info"><div class="cc-name">Son</div><div class="cc-sub">Tap to call</div></div>
+          <div class="cc-btn"><i class="fa-solid fa-phone"></i></div>
+        </button>
+        <button class="call-card" onclick="makeCall('Daughter')">
+          <div class="cc-avatar ca-pink"><i class="fa-solid fa-person-dress"></i></div>
+          <div class="cc-info"><div class="cc-name">Daughter</div><div class="cc-sub">Tap to call</div></div>
+          <div class="cc-btn"><i class="fa-solid fa-phone"></i></div>
+        </button>
+        <button class="call-card" onclick="makeCall('Doctor')">
+          <div class="cc-avatar ca-teal"><i class="fa-solid fa-user-doctor"></i></div>
+          <div class="cc-info"><div class="cc-name">Doctor</div><div class="cc-sub">Tap to call</div></div>
+          <div class="cc-btn"><i class="fa-solid fa-phone"></i></div>
+        </button>
+      </div>
+
+      <div id="call-status" class="status-card sc-teal hidden"></div>
+    </div>
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+
+  <!-- ===== VOICE ASSISTANT ===== -->
+  <div id="page-voice" class="page">
+    <div class="page-hero ph-indigo">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button class="va-clear-btn hidden" id="va-clear-btn" onclick="clearVoiceHistory()">
+          <i class="fa-solid fa-rotate-left"></i> Clear
+        </button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap"><i class="fa-solid fa-microphone-lines"></i></div>
+        <div>
+          <h2>Voice Assistant</h2>
+          <p>Speak — I'll understand you</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body center-body">
+
+      <!-- Mic button -->
+      <div class="mic-shell">
+        <div class="mic-ripple r1" id="ripple1"></div>
+        <div class="mic-ripple r2" id="ripple2"></div>
+        <button class="mic-btn" id="mic-btn" onclick="toggleMic()">
+          <i class="fa-solid fa-microphone" id="mic-icon"></i>
+        </button>
+      </div>
+
+      <!-- Status line -->
+      <p id="mic-status" class="mic-status">Tap to speak</p>
+
+      <!-- Live transcript bubble (shown while listening) -->
+      <div class="va-transcript-wrap hidden" id="va-live-wrap">
+        <div class="va-live-label"><span class="va-live-dot"></span> Hearing…</div>
+        <div class="va-live-text" id="va-live-text">—</div>
+      </div>
+
+      <!-- Command result card (shown after recognition) -->
+      <div class="va-result-card hidden" id="va-result-card">
+        <div class="va-result-heard">
+          <i class="fa-solid fa-quote-left"></i>
+          <span id="va-result-text"></span>
+          <i class="fa-solid fa-quote-right"></i>
+        </div>
+        <div class="va-result-action" id="va-result-action"></div>
+      </div>
+
+      <!-- History log -->
+      <div class="va-history hidden" id="va-history">
+        <div class="va-history-label"><i class="fa-solid fa-clock-rotate-left"></i> Recent commands</div>
+        <div class="va-history-list" id="va-history-list"></div>
+      </div>
+
+      <!-- Hint chips -->
+      <div class="hints-card" id="va-hints">
+        <div class="hints-label"><i class="fa-solid fa-lightbulb"></i> Try saying…</div>
+        <div class="hints-wrap">
+          <div class="hint-pill" onclick="simulateVoice('medicine reminder')"><i class="fa-solid fa-pills"></i> "Medicine reminder"</div>
+          <div class="hint-pill" onclick="simulateVoice('check health')"><i class="fa-solid fa-heart-pulse"></i> "Check health"</div>
+          <div class="hint-pill" onclick="simulateVoice('call my son')"><i class="fa-solid fa-phone"></i> "Call my son"</div>
+          <div class="hint-pill" onclick="simulateVoice('emergency help')"><i class="fa-solid fa-bell"></i> "Emergency help"</div>
+          <div class="hint-pill" onclick="simulateVoice('open ai assistant')"><i class="fa-solid fa-robot"></i> "Open AI assistant"</div>
+          <div class="hint-pill" onclick="simulateVoice('go home')"><i class="fa-solid fa-house"></i> "Go home"</div>
+        </div>
+      </div>
+
+    </div>
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+
+  <!-- ===== AI ASSISTANT ===== -->
+  <div id="page-ai" class="page ai-page">
+    <div class="page-hero ph-ai">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button class="chat-clear-btn" onclick="clearChat()" title="Clear chat">
+          <i class="fa-solid fa-trash"></i> Clear
+        </button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap ai-hero-icon"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h2>AI Assistant</h2>
+          <p>Ask me anything — I'm here to help</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Online indicator -->
+    <div class="ai-status-bar">
+      <span class="ai-dot"></span>
+      <span>CareBot is online and ready</span>
+    </div>
+
+    <!-- Chat window -->
+    <div class="chat-window" id="chat-window">
+      <!-- Welcome bubble -->
+      <div class="chat-row bot-row">
+        <div class="chat-avatar bot-avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="chat-bubble bot-bubble">
+          <p>👋 Hello! I'm <strong>CareBot</strong>, your personal health assistant.</p>
+          <p style="margin-top:8px;">You can ask me about medicine, health tips, emergency info, or just say hello! 😊</p>
+          <div class="bubble-time" id="welcome-time"></div>
+        </div>
+      </div>
+
+      <!-- Quick suggestion chips -->
+      <div class="suggestion-chips" id="suggestion-chips">
+        <div class="chips-label">Try asking:</div>
+        <div class="chips-row">
+          <button class="chip" onclick="sendSuggestion('Hello')"><i class="fa-solid fa-hand-wave"></i> Hello</button>
+          <button class="chip" onclick="sendSuggestion('Medicine reminder')"><i class="fa-solid fa-pills"></i> Medicine</button>
+          <button class="chip" onclick="sendSuggestion('I need help')"><i class="fa-solid fa-circle-question"></i> Help</button>
+          <button class="chip" onclick="sendSuggestion('Health tips')"><i class="fa-solid fa-heart"></i> Health tips</button>
+          <button class="chip" onclick="sendSuggestion('Emergency')"><i class="fa-solid fa-bell"></i> Emergency</button>
+          <button class="chip" onclick="sendSuggestion('How are you?')"><i class="fa-regular fa-face-smile"></i> How are you?</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing indicator (hidden by default) -->
+    <div class="typing-indicator hidden" id="typing-indicator">
+      <div class="chat-avatar bot-avatar sm"><i class="fa-solid fa-robot"></i></div>
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="chat-input-area">
+      <div class="chat-input-wrap">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Type your message…"
+          autocomplete="off"
+          onkeydown="if(event.key==='Enter') sendMessage()"
+          maxlength="300"
+        />
+        <button class="chat-send-btn" onclick="sendMessage()" id="send-btn">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABOUT PAGE ===== -->
+  <div id="page-about" class="page">
+    <div class="page-hero ph-brand">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402C1 3.784 3.784 2 6.5 2c1.97 0 3.623 1.002 4.5 2.05C11.877 3.002 13.53 2 15.5 2 18.216 2 21 3.784 21 7.191c0 4.105-5.37 8.863-9 12.602l-1 1.8z" fill="white" opacity="0.95"/>
+            <path d="M7 11h3l2-4 2 8 2-4h3" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2>About CareAssist</h2>
+          <p>Your trusted health companion</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Hackathon hero card -->
+      <div class="about-hero-card">
+        <div class="ahc-ribbon">Hackathon</div>
+        <div class="ahc-inner">
+          <div class="ahc-logo-row">
+            <div class="ahc-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402C1 3.784 3.784 2 6.5 2c1.97 0 3.623 1.002 4.5 2.05C11.877 3.002 13.53 2 15.5 2 18.216 2 21 3.784 21 7.191c0 4.105-5.37 8.863-9 12.602l-1 1.8z" fill="white" opacity="0.95"/>
+                <path d="M7 11h3l2-4 2 8 2-4h3" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="ahc-title">CareAssist</div>
+              <div class="ahc-subtitle">Elderly Care Assistant · v1.0.0</div>
+            </div>
+          </div>
+          <p class="ahc-tagline">A full-stack AI-powered platform that gives elderly users smart medicine reminders, real-time health tracking, emergency SOS, and a conversational AI health assistant — all in one beautiful app.</p>
+          <div class="ahc-stats">
+            <div class="ahc-stat">
+              <div class="ahc-stat-num">8</div>
+              <div class="ahc-stat-label">Features</div>
+            </div>
+            <div class="ahc-stat">
+              <div class="ahc-stat-num">11</div>
+              <div class="ahc-stat-label">API Routes</div>
+            </div>
+            <div class="ahc-stat">
+              <div class="ahc-stat-num">GPT</div>
+              <div class="ahc-stat-label">AI Powered</div>
+            </div>
+            <div class="ahc-stat">
+              <div class="ahc-stat-num">~5k</div>
+              <div class="ahc-stat-label">Lines of Code</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature highlights -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-star"></i> Key Features</div>
+        <div class="about-features">
+          <div class="af-item">
+            <div class="af-icon" style="background:var(--brand-lt);color:var(--brand-mid);"><i class="fa-solid fa-pills"></i></div>
+            <div><div class="af-name">Medicine Reminder</div><div class="af-desc">Smart dose scheduling with frequency control, status tracking, and due-soon alerts</div></div>
+          </div>
+          <div class="af-item">
+            <div class="af-icon" style="background:var(--red-lt);color:var(--red);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div><div class="af-name">Emergency SOS</div><div class="af-desc">One-tap emergency alert with saved contact and national helpline numbers</div></div>
+          </div>
+          <div class="af-item">
+            <div class="af-icon" style="background:var(--green-lt);color:var(--green);"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div><div class="af-name">Health Tracker</div><div class="af-desc">Log BP, sugar, and heart rate with trend charts and colour-coded status labels</div></div>
+          </div>
+          <div class="af-item">
+            <div class="af-icon" style="background:var(--teal-lt);color:var(--teal);"><i class="fa-solid fa-phone-volume"></i></div>
+            <div><div class="af-name">Family Calls</div><div class="af-desc">Instant one-tap connection to Son, Daughter, and Doctor</div></div>
+          </div>
+          <div class="af-item">
+            <div class="af-icon" style="background:var(--indigo-lt);color:var(--indigo);"><i class="fa-solid fa-microphone-lines"></i></div>
+            <div><div class="af-name">Voice Assistant</div><div class="af-desc">Real Web Speech API with command navigation, live transcript, and command history</div></div>
+          </div>
+          <div class="af-item">
+            <div class="af-icon" style="background:#e3e0fa;color:#3a2f9e;"><i class="fa-solid fa-robot"></i></div>
+            <div><div class="af-name">AI Assistant (CareBot)</div><div class="af-desc">GPT-4o mini — conversational health guidance with full context memory, secure server-side API calls</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech stack -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-code"></i> Tech Stack</div>
+        <div class="tech-grid">
+          <div class="tech-badge"><i class="fa-brands fa-python"></i> Python Flask</div>
+          <div class="tech-badge"><i class="fa-solid fa-server"></i> REST API</div>
+          <div class="tech-badge"><i class="fa-brands fa-js"></i> Vanilla JS</div>
+          <div class="tech-badge"><i class="fa-solid fa-chart-line"></i> Chart.js</div>
+          <div class="tech-badge"><i class="fa-solid fa-microphone"></i> Web Speech API</div>
+          <div class="tech-badge"><i class="fa-solid fa-brain"></i> OpenAI GPT-4o mini</div>
+          <div class="tech-badge"><i class="fa-solid fa-palette"></i> CSS Variables</div>
+          <div class="tech-badge"><i class="fa-solid fa-mobile-screen"></i> Responsive Design</div>
+          <div class="tech-badge"><i class="fa-solid fa-lock"></i> Session Auth</div>
+          <div class="tech-badge"><i class="fa-solid fa-bolt"></i> Zero Dependencies JS</div>
+        </div>
+      </div>
+
+      <!-- Project info -->
+      <div class="card about-version-card">
+        <div class="avc-row"><span>Version</span><strong>1.0.0</strong></div>
+        <div class="avc-row"><span>Event</span><strong>AppXcelerate 1.0</strong></div>
+        <div class="avc-row"><span>Category</span><strong>Healthcare &amp; AI</strong></div>
+        <div class="avc-row"><span>Backend</span><strong>Python Flask + OpenAI</strong></div>
+        <div class="avc-row" style="border:none;padding-bottom:0;"><span>Target Users</span><strong>Elderly &amp; Caregivers</strong></div>
+      </div>
+
+      <!-- Built by -->
+      <div class="built-by-card">
+        <div class="built-by-title">Built at</div>
+        <div class="built-by-name">AppXcelerate 1.0</div>
+        <div class="built-by-event">Healthcare + AI Hackathon</div>
+        <div class="built-by-tags">
+          <span class="bbt"><i class="fa-solid fa-heart"></i> Made with care</span>
+          <span class="bbt"><i class="fa-solid fa-flask"></i> Flask</span>
+          <span class="bbt"><i class="fa-solid fa-robot"></i> GPT-4o mini</span>
+          <span class="bbt"><i class="fa-solid fa-fire"></i> 24hrs</span>
+        </div>
+      </div>
+
+    </div>
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+
+  <!-- ===== HELP PAGE ===== -->
+  <div id="page-help" class="page">
+    <div class="page-hero ph-teal">
+      <div class="ph-nav">
+        <button class="back-btn" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      </div>
+      <div class="ph-body">
+        <div class="ph-icon-wrap"><i class="fa-solid fa-circle-question"></i></div>
+        <div>
+          <h2>Help &amp; Guide</h2>
+          <p>Everything you need to know</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Demo credentials card — prominent for hackathon -->
+      <div class="card" style="background:linear-gradient(135deg,var(--brand-xlt),var(--bg-card));border-color:var(--brand-lt);">
+        <div class="card-head" style="border-color:var(--brand-lt);"><i class="fa-solid fa-key"></i> Demo Credentials</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px;">
+          <div style="flex:1;min-width:120px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Username</div>
+            <div class="cred-pill"><i class="fa-solid fa-user"></i> admin</div>
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Password</div>
+            <div class="cred-pill"><i class="fa-solid fa-lock"></i> 1234</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text-3);margin-top:10px;"><i class="fa-solid fa-circle-info" style="color:var(--brand-mid);margin-right:6px;"></i>These are the default demo credentials for the hackathon presentation.</div>
+      </div>
+
+      <!-- Quick start -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-bolt"></i> Quick Start</div>
+        <div class="help-steps">
+          <div class="hs-step">
+            <div class="hs-num">1</div>
+            <div><div class="hs-title">Sign in</div><div class="hs-desc">Use <span class="cred-pill" style="font-size:12px;padding:2px 9px;">admin</span> / <span class="cred-pill" style="font-size:12px;padding:2px 9px;">1234</span> to log in. You'll land on the Home dashboard.</div></div>
+          </div>
+          <div class="hs-step">
+            <div class="hs-num">2</div>
+            <div><div class="hs-title">Add a medicine reminder</div><div class="hs-desc">Tap <em>Medicine Reminder</em>, enter the medicine name, time, and frequency, then tap <em>Add Reminder</em>.</div></div>
+          </div>
+          <div class="hs-step">
+            <div class="hs-num">3</div>
+            <div><div class="hs-title">Log health vitals</div><div class="hs-desc">Tap <em>Health Tracker</em>, enter BP / sugar / heart rate — status colours and trend charts update automatically.</div></div>
+          </div>
+          <div class="hs-step">
+            <div class="hs-num">4</div>
+            <div><div class="hs-title">Set an emergency contact</div><div class="hs-desc">Go to <em>Emergency Help</em>, add a contact name and phone, then test the big red SOS button.</div></div>
+          </div>
+          <div class="hs-step">
+            <div class="hs-num">5</div>
+            <div><div class="hs-title">Try the Voice Assistant</div><div class="hs-desc">Tap the mic button and say <em>"medicine reminder"</em> or <em>"check health"</em> — the app navigates hands-free.</div></div>
+          </div>
+          <div class="hs-step">
+            <div class="hs-num">6</div>
+            <div><div class="hs-title">Chat with CareBot AI</div><div class="hs-desc">Tap <em>AI Assistant</em> and ask any health question. CareBot is powered by GPT-4o mini and remembers the whole conversation.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-comments"></i> Frequently Asked Questions</div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>Will my reminders be saved if I close the app?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Yes — all reminders and health records are stored on the Flask server per session. For permanent persistence across server restarts, the in-memory store can be swapped for a database like SQLite or PostgreSQL.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>How does the SOS button work?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Save an emergency contact first (name + phone). Then press the big red SOS button — it simulates calling your contact. In a production version, this would trigger a real call via Twilio or send an SMS alert.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>Does the Voice Assistant need internet?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">The Web Speech API (Chrome / Edge / Safari) uses Google's cloud servers, so an internet connection is needed. On unsupported browsers, a smooth typing-simulation fallback kicks in automatically.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>How do I set up the AI chatbot?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Set your OpenAI API key before starting the server: <code>export OPENAI_API_KEY=sk-...</code> then run <code>python app.py</code>. All API calls are made server-side so your key is never exposed to the browser.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>What do the health status colours mean?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">
+              <strong style="color:var(--green)">● Green = Normal</strong> &nbsp;·&nbsp;
+              <strong style="color:var(--brand-mid)">● Blue = Low</strong> &nbsp;·&nbsp;
+              <strong style="color:var(--amber)">● Amber = Elevated</strong> &nbsp;·&nbsp;
+              <strong style="color:var(--red)">● Red = High</strong>
+              <br><br>Ranges follow standard clinical guidelines (e.g. BP normal ≤120/80, sugar normal 70–140 mg/dL).
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>Can multiple users log in?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Yes — the Flask backend stores data per username. Add more users to the <code>USERS</code> dictionary in <code>app.py</code>. Each user gets completely separate medicine and health records.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voice commands reference -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-microphone"></i> Voice Commands</div>
+        <div class="vc-table">
+          <div class="vc-row"><div class="vc-phrase">"Medicine reminder"</div><div class="vc-action"><i class="fa-solid fa-pills" style="color:var(--brand-mid);margin-right:6px;"></i>Opens Medicine Page</div></div>
+          <div class="vc-row"><div class="vc-phrase">"Check health"</div><div class="vc-action"><i class="fa-solid fa-heart-pulse" style="color:var(--green);margin-right:6px;"></i>Opens Health Tracker</div></div>
+          <div class="vc-row"><div class="vc-phrase">"Emergency help" / "SOS"</div><div class="vc-action"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:6px;"></i>Opens Emergency</div></div>
+          <div class="vc-row"><div class="vc-phrase">"Call my son" / "Call family"</div><div class="vc-action"><i class="fa-solid fa-phone" style="color:var(--teal);margin-right:6px;"></i>Opens Call Family</div></div>
+          <div class="vc-row"><div class="vc-phrase">"Open AI assistant"</div><div class="vc-action"><i class="fa-solid fa-robot" style="color:var(--indigo);margin-right:6px;"></i>Opens AI Chat</div></div>
+          <div class="vc-row"><div class="vc-phrase">"Go home"</div><div class="vc-action"><i class="fa-solid fa-house" style="color:var(--brand);margin-right:6px;"></i>Returns to Home</div></div>
+          <div class="vc-row"><div class="vc-phrase">"What time is it"</div><div class="vc-action"><i class="fa-solid fa-clock" style="color:var(--indigo);margin-right:6px;"></i>Reads current time</div></div>
+          <div class="vc-row" style="border:none;"><div class="vc-phrase">"Hello" / "Goodbye"</div><div class="vc-action"><i class="fa-solid fa-hand-wave" style="color:var(--amber);margin-right:6px;"></i>Friendly reply</div></div>
+        </div>
+      </div>
+
+      <!-- Emergency numbers -->
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-phone-volume"></i> Emergency Numbers — India</div>
+        <div class="info-card" style="box-shadow:none;border:none;padding:0;">
+          <div class="info-row"><i class="fa-solid fa-phone" style="color:var(--brand-mid)"></i><span>All Emergencies</span><strong>112</strong></div>
+          <div class="info-row"><i class="fa-solid fa-truck-medical" style="color:var(--red)"></i><span>Ambulance</span><strong>108</strong></div>
+          <div class="info-row" style="border:none;"><i class="fa-solid fa-shield-halved" style="color:var(--indigo)"></i><span>Police</span><strong>100</strong></div>
+        </div>
+      </div>
+
+    </div>
+    <footer class="site-footer"><div class="sf-inner"><i class="fa-solid fa-heart sf-heart"></i><span>Made with care for <strong>AppXcelerate 1.0</strong></span></div></footer>
+  </div>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
